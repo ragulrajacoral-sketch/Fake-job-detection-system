@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fake Job Detection System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">🛡️ JobShield</a>
+  <span class="tag">JOB SCAM RISK CHECKER</span>
+</header>
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">PAUSE · CHECK · VERIFY</div>
+    <h1>Spot warning signs<br><span>before you apply.</span></h1>
+    <p>Check a job post or recruiter message for common scam indicators. Get a clear breakdown of the patterns found.</p>
+  </section>
+
+  <section class="analyzer">
+    <div class="section-head">
+      <div><div class="eyebrow">JOB DESCRIPTION SCANNER</div><h2>Analyze a job offer</h2></div>
+      <span class="shield-icon">✓</span>
+    </div>
+    <form method="post">
+      <label for="job_text">Paste the job description or message</label>
+      <textarea id="job_text" name="job_text" rows="9" placeholder="Paste the job post, recruiter email, or message here..." required>{{ job_text }}</textarea>
+      <div class="form-footer"><span>Tip: Remove your personal information before pasting.</span><button type="submit">Analyze job <span>→</span></button></div>
+    </form>
+    {% if result and result.error %}<div class="alert">{{ result.error }}</div>{% endif %}
+  </section>
+
+  {% if result and not result.error %}
+  <section class="results" aria-live="polite">
+    <div class="result-heading"><div><div class="eyebrow">SCREENING RESULT</div><h2>Risk indicator summary</h2></div><span class="risk-pill {{ result.level }}">{{ result.label }}</span></div>
+    <div class="score-layout">
+      <article class="score-card">
+        <div class="score-label">RISK INDICATOR SCORE</div>
+        <div class="score">{{ result.score }}<span>/100</span></div>
+        <div class="track"><div class="{{ result.level }}" style="width: {{ result.score }}%"></div></div>
+        <p>This score reflects matched warning patterns, not the probability that the job is fraudulent.</p>
+      </article>
+      <article class="notice-card">
+        <div class="notice-icon">!</div>
+        <div><h3>Always verify independently</h3><p>Even a low score cannot prove a job is genuine. Find the company's official website yourself and confirm the vacancy using its published contact details.</p></div>
+      </article>
+    </div>
+    <article class="findings">
+      <div class="findings-head"><h3>What we found</h3><span>{{ result.reasons|length }} finding(s)</span></div>
+      {% for reason in result.reasons %}
+      <div class="finding"><span class="finding-mark">{{ '!' if reason.points >= 10 else '•' }}</span><p>{{ reason.text }}</p><span class="points">+{{ reason.points }}</span></div>
+      {% endfor %}
+    </article>
+    <article class="safety-box">
+      <h3>🚨 Never share these with a recruiter</h3>
+      <div class="safety-items"><span>OTP or passwords</span><span>Banking credentials</span><span>Upfront job fees</span><span>Card CVV or gift cards</span></div>
+    </article>
+    <p class="disclaimer">This tool uses simple pattern matching and can make mistakes. It is an educational screening aid, not a definitive fraud detector or legal/financial advice.</p>
+  </section>
+  {% endif %}
+  <footer>JobShield · Flask + Python · Local text analysis</footer>
+</main>
+</body>
+</html>
